@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { roleHomePath } from '@/lib/role'
 
 // 認証不要のパス（プレフィックス一致）
 const PUBLIC_PATHS = ['/login', '/auth']
@@ -63,7 +64,7 @@ export const updateSession = async (request: NextRequest) => {
 
     if (profile?.role && isOnSetup) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = `/${profile.role}`
+      redirectUrl.pathname = roleHomePath(profile.role)
       redirectUrl.search = ''
       return NextResponse.redirect(redirectUrl)
     }

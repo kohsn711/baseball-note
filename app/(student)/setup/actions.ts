@@ -45,5 +45,5 @@ export const completeSetup = async (
     return { error: 'プロフィールの保存に失敗しました。時間をおいて再度お試しください。' }
   }
 
-  redirect('/student')
+  redirect('/home')
 }

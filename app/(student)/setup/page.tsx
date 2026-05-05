@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { roleHomePath } from '@/lib/role'
 import { SetupForm } from './setup-form'
 
 export const metadata = {
@@ -12,17 +13,13 @@ export default async function SetupPage() {
   const userId = claimsData?.claims?.sub
   if (!userId) redirect('/login')
 
-  // すでにプロフィールがある場合はホームへ
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', userId)
     .maybeSingle()
 
-  if (profile?.role === 'student') redirect('/student')
-  if (profile?.role === 'coach') redirect('/coach')
-  if (profile?.role === 'parent') redirect('/parent')
-  if (profile?.role === 'admin') redirect('/admin')
+  if (profile?.role) redirect(roleHomePath(profile.role))
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-10">
