@@ -6,19 +6,19 @@
 ## ToDo
 
 ### 画面
-- [ ] `app/(student)/setup/page.tsx` を作成
-- [ ] 氏名入力フォーム
-- [ ] 学年・ポジション選択
-- [ ] 「設定完了」ボタン
+- [x] `app/(student)/setup/page.tsx` を作成
+- [x] 氏名入力フォーム
+- [x] 学年・ポジション選択
+- [x] 「設定完了」ボタン
 
 ### Server Action
-- [ ] `profiles` テーブルにプロフィール情報を保存
-- [ ] `role` を `student` に設定
-- [ ] 設定完了後に学生ホームへ `redirect`
+- [x] `profiles` テーブルにプロフィール情報を保存
+- [x] `role` を `student` に設定
+- [x] 設定完了後に学生ホームへ `redirect`
 
 ### バリデーション
-- [ ] 氏名は必須
-- [ ] 二重送信を防ぐ（`useActionState` でペンディング状態を管理）
+- [x] 氏名は必須
+- [x] 二重送信を防ぐ（`useActionState` でペンディング状態を管理）
 
 ## 備考
 - 初期設定未完了の場合はmiddlewareで初期設定画面にリダイレクトする

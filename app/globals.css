@@ -21,3 +21,15 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+@layer utilities {
+  .pb-nav {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .sticky-above-nav {
+    bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}

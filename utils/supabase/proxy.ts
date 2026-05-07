@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { roleHomePath } from '@/lib/role'
 
 // 認証不要のパス（プレフィックス一致）
 const PUBLIC_PATHS = ['/login', '/auth']
@@ -41,6 +42,32 @@ export const updateSession = async (request: NextRequest) => {
     redirectUrl.pathname = '/login'
     redirectUrl.search = ''
     return NextResponse.redirect(redirectUrl)
+  }
+
+  // 認証済みかつ非公開パスの場合、初期設定の有無で振り分ける
+  if (claims && !isPublic) {
+    const userId = claims.sub
+    const isOnSetup = pathname.startsWith('/setup')
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .maybeSingle()
+
+    if (!profile?.role && !isOnSetup) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/setup'
+      redirectUrl.search = ''
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    if (profile?.role && isOnSetup) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = roleHomePath(profile.role)
+      redirectUrl.search = ''
+      return NextResponse.redirect(redirectUrl)
+    }
   }
 
   return response
