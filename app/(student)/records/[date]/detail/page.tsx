@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { fetchDailyRecord, fetchRecordSocial } from '@/lib/daily-record'
+import { fetchPresetComments } from '@/lib/social'
 import { getJstParts } from '@/lib/date-jst'
 import { RecordDetailView, formatDateHeader } from '@/components/record-detail-view'
+import { RecordSocial } from '@/components/record-social'
 
 export const metadata = {
   title: '記録詳細 | 野球ノート',
@@ -46,7 +48,10 @@ export default async function RecordDetailPage({
   const data = await fetchDailyRecord(userId, recordDate)
   if (!data.dailyRecordId) notFound()
 
-  const { reactions, comments } = await fetchRecordSocial(data.dailyRecordId)
+  const [{ reactions, comments }, presetComments] = await Promise.all([
+    fetchRecordSocial(data.dailyRecordId, 'student'),
+    fetchPresetComments(),
+  ])
 
   return (
     <div className="mx-auto w-full max-w-md space-y-4 px-4 py-6">
@@ -66,7 +71,16 @@ export default async function RecordDetailPage({
         {formatDateHeader(recordDate)} の記録
       </h1>
 
-      <RecordDetailView data={data} reactions={reactions} comments={comments} />
+      <RecordDetailView data={data} />
+
+      <RecordSocial
+        dailyRecordId={data.dailyRecordId}
+        viewerId={userId}
+        canInteract={false}
+        reactions={reactions}
+        comments={comments}
+        presetComments={presetComments}
+      />
     </div>
   )
 }

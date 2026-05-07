@@ -1,8 +1,4 @@
-import type {
-  DailyRecordData,
-  RecordReaction,
-  RecordComment,
-} from '@/lib/daily-record'
+import type { DailyRecordData } from '@/lib/daily-record'
 
 const PRACTICE_LABELS: Record<string, string> = {
   swing: '素振り',
@@ -106,11 +102,9 @@ const renderTraining = (data: DailyRecordData) => {
 
 type Props = {
   data: DailyRecordData
-  reactions: RecordReaction[]
-  comments: RecordComment[]
 }
 
-export const RecordDetailView = ({ data, reactions, comments }: Props) => {
+export const RecordDetailView = ({ data }: Props) => {
   const practiceItems = renderPractice(data)
   const trainingItems = renderTraining(data)
   const hasMeal =
@@ -213,35 +207,6 @@ export const RecordDetailView = ({ data, reactions, comments }: Props) => {
         </Section>
       )}
 
-      <Section title="リアクション">
-        {reactions.length === 0 ? (
-          <p className="text-slate-500">まだリアクションはありません。</p>
-        ) : (
-          <ul className="space-y-1.5">
-            {reactions.map((rc) => (
-              <li key={rc.id} className="flex items-center gap-2">
-                <span className="text-lg">{rc.emoji}</span>
-                <span className="text-slate-700">{rc.senderName}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
-
-      <Section title="コメント">
-        {comments.length === 0 ? (
-          <p className="text-slate-500">まだコメントはありません。</p>
-        ) : (
-          <ul className="space-y-2">
-            {comments.map((cm) => (
-              <li key={cm.id} className="rounded-lg bg-slate-50 px-3 py-2">
-                <p className="text-xs text-slate-500">{cm.senderName}</p>
-                <p className="text-slate-900">{cm.text}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
     </div>
   )
 }

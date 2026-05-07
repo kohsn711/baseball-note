@@ -229,6 +229,7 @@ export const fetchDailyRecord = async (
 export type RecordReaction = {
   id: string
   emoji: string
+  senderId: string
   senderName: string
   createdAt: string
 }
@@ -239,54 +240,84 @@ export type RecordComment = {
   createdAt: string
 }
 
+export type SocialViewerRole = 'student' | 'coach' | 'parent'
+
+// viewerRole 視点で「相手側ロール」のものは除外する
+//   coach   → parent の送信を除外
+//   parent → coach の送信を除外
+//   student → 全件
+const hiddenSenderRole = (
+  viewerRole: SocialViewerRole
+): 'coach' | 'parent' | null => {
+  if (viewerRole === 'coach') return 'parent'
+  if (viewerRole === 'parent') return 'coach'
+  return null
+}
+
 export const fetchRecordSocial = async (
-  dailyRecordId: string
+  dailyRecordId: string,
+  viewerRole: SocialViewerRole
 ): Promise<{ reactions: RecordReaction[]; comments: RecordComment[] }> => {
   const supabase = await createClient()
 
   const [reactionsRes, commentsRes] = await Promise.all([
     supabase
       .from('reactions')
-      .select('id, emoji, created_at, sender:profiles!reactions_sender_id_fkey(display_name)')
+      .select(
+        'id, emoji, sender_id, created_at, sender:profiles!reactions_sender_id_fkey(display_name, role)'
+      )
       .eq('daily_record_id', dailyRecordId)
       .order('created_at', { ascending: false }),
     supabase
       .from('comments')
       .select(
-        'id, created_at, sender:profiles!comments_sender_id_fkey(display_name), preset:preset_comments!comments_preset_comment_id_fkey(text)'
+        'id, text, created_at, sender:profiles!comments_sender_id_fkey(display_name, role)'
       )
       .eq('daily_record_id', dailyRecordId)
       .order('created_at', { ascending: false }),
   ])
 
+  type SenderProfile = { display_name: string; role: string }
   type ReactionRow = {
     id: string
     emoji: string
+    sender_id: string
     created_at: string
-    sender: { display_name: string } | { display_name: string }[] | null
+    sender: SenderProfile | SenderProfile[] | null
   }
   type CommentRow = {
     id: string
+    text: string
     created_at: string
-    sender: { display_name: string } | { display_name: string }[] | null
-    preset: { text: string } | { text: string }[] | null
+    sender: SenderProfile | SenderProfile[] | null
   }
 
   const pickOne = <T>(v: T | T[] | null | undefined): T | null =>
     Array.isArray(v) ? (v[0] ?? null) : (v ?? null)
 
-  const reactions: RecordReaction[] = ((reactionsRes.data ?? []) as ReactionRow[]).map((r) => ({
-    id: r.id,
-    emoji: r.emoji,
-    senderName: pickOne(r.sender)?.display_name ?? '',
-    createdAt: r.created_at,
-  }))
-  const comments: RecordComment[] = ((commentsRes.data ?? []) as CommentRow[]).map((c) => ({
-    id: c.id,
-    text: pickOne(c.preset)?.text ?? '',
-    senderName: pickOne(c.sender)?.display_name ?? '',
-    createdAt: c.created_at,
-  }))
+  const hide = hiddenSenderRole(viewerRole)
+  const visible = (sender: SenderProfile | null): boolean =>
+    hide == null ? true : sender?.role !== hide
+
+  const reactions: RecordReaction[] = ((reactionsRes.data ?? []) as ReactionRow[])
+    .map((r) => ({ row: r, sender: pickOne(r.sender) }))
+    .filter(({ sender }) => visible(sender))
+    .map(({ row, sender }) => ({
+      id: row.id,
+      emoji: row.emoji,
+      senderId: row.sender_id,
+      senderName: sender?.display_name ?? '',
+      createdAt: row.created_at,
+    }))
+  const comments: RecordComment[] = ((commentsRes.data ?? []) as CommentRow[])
+    .map((c) => ({ row: c, sender: pickOne(c.sender) }))
+    .filter(({ sender }) => visible(sender))
+    .map(({ row, sender }) => ({
+      id: row.id,
+      text: row.text,
+      senderName: sender?.display_name ?? '',
+      createdAt: row.created_at,
+    }))
 
   return { reactions, comments }
 }

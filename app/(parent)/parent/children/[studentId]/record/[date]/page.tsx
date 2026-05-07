@@ -2,9 +2,11 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { fetchDailyRecord, fetchRecordSocial } from '@/lib/daily-record'
+import { fetchPresetComments } from '@/lib/social'
 import { fetchParentChild } from '@/lib/parent'
 import { getJstParts } from '@/lib/date-jst'
 import { RecordDetailView, formatDateHeader } from '@/components/record-detail-view'
+import { RecordSocial } from '@/components/record-social'
 
 export const metadata = {
   title: 'お子さまの記録詳細 | 野球ノート',
@@ -52,7 +54,10 @@ export default async function ParentChildRecordPage({
   const data = await fetchDailyRecord(studentId, recordDate)
   if (!data.dailyRecordId) notFound()
 
-  const { reactions, comments } = await fetchRecordSocial(data.dailyRecordId)
+  const [{ reactions, comments }, presetComments] = await Promise.all([
+    fetchRecordSocial(data.dailyRecordId, 'parent'),
+    fetchPresetComments(),
+  ])
 
   return (
     <div className="mx-auto w-full max-w-md space-y-4 px-4 py-6">
@@ -74,7 +79,16 @@ export default async function ParentChildRecordPage({
         </h1>
       </div>
 
-      <RecordDetailView data={data} reactions={reactions} comments={comments} />
+      <RecordDetailView data={data} />
+
+      <RecordSocial
+        dailyRecordId={data.dailyRecordId}
+        viewerId={userId}
+        canInteract
+        reactions={reactions}
+        comments={comments}
+        presetComments={presetComments}
+      />
     </div>
   )
 }
