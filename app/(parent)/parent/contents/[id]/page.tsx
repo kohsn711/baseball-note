@@ -1,0 +1,33 @@
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { fetchContentDetail } from '@/lib/contents'
+import { ContentDetailView } from '@/components/content-detail'
+
+type Params = Promise<{ id: string }>
+
+export const generateMetadata = async ({ params }: { params: Params }) => {
+  const { id } = await params
+  const content = await fetchContentDetail(id, 'parent')
+  return {
+    title: content ? `${content.title} | 野球ノート` : 'コンテンツ | 野球ノート',
+  }
+}
+
+export default async function ParentContentDetailPage({
+  params,
+}: {
+  params: Params
+}) {
+  const { id } = await params
+  const content = await fetchContentDetail(id, 'parent')
+  if (!content) notFound()
+
+  return (
+    <div className="mx-auto w-full max-w-md space-y-4 px-4 py-6">
+      <Link href="/parent/contents" className="text-xs text-slate-500 underline">
+        ← コンテンツ一覧
+      </Link>
+      <ContentDetailView content={content} />
+    </div>
+  )
+}

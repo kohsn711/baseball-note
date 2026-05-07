@@ -99,6 +99,21 @@ export default async function CoachDashboardPage() {
           </ul>
         )}
       </section>
+
+      <section className="rounded-2xl bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">コンテンツ</h2>
+            <p className="text-xs text-slate-500">監督向け記事を見る</p>
+          </div>
+          <Link
+            href="/coach/contents"
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700"
+          >
+            一覧を見る
+          </Link>
+        </div>
+      </section>
     </div>
   )
 }

@@ -152,6 +152,22 @@ export default async function StudentHome() {
         )}
       </section>
 
+      {/* コンテンツ */}
+      <section className="rounded-2xl bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-900">コンテンツ</h2>
+            <p className="text-xs text-slate-500">記事や動画を見る</p>
+          </div>
+          <Link
+            href="/contents"
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-700"
+          >
+            一覧を見る
+          </Link>
+        </div>
+      </section>
+
       {/* 保護者の登録 */}
       <section className="rounded-2xl bg-white p-4 shadow-sm">
         <div className="flex items-center justify-between">
