@@ -37,18 +37,17 @@ export const completeSetup = async (
   const userId = claimsData?.claims?.sub
   if (!userId) redirect('/login')
 
-  const profileData =
+  const { error } =
     role === 'coach'
-      ? { id: userId, role: 'coach' as const, display_name: displayName }
-      : {
-          id: userId,
-          role: 'student' as const,
-          display_name: displayName,
-          grade: grade || null,
-          position: position || null,
-        }
-
-  const { error } = await supabase.from('profiles').upsert(profileData, { onConflict: 'id' })
+      ? await supabase
+          .from('profiles')
+          .upsert({ id: userId, role: 'coach' as const, display_name: displayName }, { onConflict: 'id' })
+      : await supabase
+          .from('profiles')
+          .upsert(
+            { id: userId, role: 'student' as const, display_name: displayName, grade: grade || null, position: position || null },
+            { onConflict: 'id' }
+          )
 
   if (error) {
     return { error: 'プロフィールの保存に失敗しました。時間をおいて再度お試しください。' }
