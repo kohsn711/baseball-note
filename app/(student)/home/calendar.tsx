@@ -88,13 +88,13 @@ export const Calendar = ({ initialYear, initialMonth0, todayIso, recordedDates }
           const cell = (
             <div
               className={`flex aspect-square flex-col items-center justify-center rounded-md text-sm ${
-                isToday ? 'bg-slate-900 text-white' : 'text-slate-800'
+                isToday ? 'bg-orange-500 font-bold text-white shadow-sm' : 'text-slate-800'
               } ${recorded && !isToday ? 'hover:bg-slate-100' : ''}`}
             >
               <span>{c.day}</span>
               <span
                 className={`mt-0.5 h-1.5 w-1.5 rounded-full ${
-                  recorded ? (isToday ? 'bg-emerald-300' : 'bg-emerald-500') : 'bg-transparent'
+                  recorded ? (isToday ? 'bg-white/80' : 'bg-orange-400') : 'bg-transparent'
                 }`}
                 aria-hidden
               />

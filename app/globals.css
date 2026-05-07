@@ -3,11 +3,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --brand-orange: #f97316;
+  --brand-orange-dark: #ea6c09;
+  --brand-navy: #0f172a;
+  --brand-navy-mid: #1e3a5f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-navy: var(--brand-navy);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -60,24 +60,27 @@ export const BottomNav = ({ role }: { role: Role }) => {
   return (
     <nav
       aria-label="メインナビゲーション"
-      className="bottom-nav fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur"
+      className="bottom-nav fixed inset-x-0 bottom-0 z-30 border-t border-slate-100 bg-white/97 shadow-[0_-1px_12px_rgba(0,0,0,0.06)] backdrop-blur"
     >
       <ul className="mx-auto flex h-16 max-w-md items-stretch">
         {tabs.map((tab, i) => {
           const active = hasActive && i === activeIndex
           return (
-            <li key={tab.href} className="flex-1">
+            <li key={tab.href} className="relative flex-1">
+              {active && (
+                <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-orange-500" />
+              )}
               <Link
                 href={tab.href}
-                className={`flex h-full flex-col items-center justify-center gap-0.5 text-[11px] ${
-                  active ? 'text-slate-900' : 'text-slate-500'
+                className={`flex h-full flex-col items-center justify-center gap-0.5 text-[11px] transition-colors ${
+                  active ? 'text-orange-500' : 'text-slate-400'
                 }`}
                 aria-current={active ? 'page' : undefined}
               >
-                <span className={`text-xl leading-none ${active ? '' : 'opacity-70'}`}>
+                <span className={`text-xl leading-none transition-transform ${active ? 'scale-110' : ''}`}>
                   {tab.icon}
                 </span>
-                <span className={active ? 'font-semibold' : ''}>{tab.label}</span>
+                <span className={active ? 'font-bold' : 'font-medium'}>{tab.label}</span>
               </Link>
             </li>
           )

@@ -76,28 +76,29 @@ export default async function StudentHome() {
 
       <div className="mx-auto w-full max-w-md space-y-4 px-4 py-4">
       {teams.length === 0 && (
-        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
           まだチームに所属していません。
-          <Link href="/team/join" className="ml-1 underline">チームに参加する</Link>
+          <Link href="/team/join" className="ml-1 font-semibold underline">チームに参加する</Link>
         </p>
       )}
 
       {/* 1. 今日の記録ボタン */}
       <Link
         href="/records/today"
-        className={`block rounded-2xl px-4 py-4 text-center text-base font-semibold shadow-sm ${
+        className={`block rounded-2xl px-4 py-5 text-center text-base font-bold shadow-md transition-transform active:scale-95 ${
           todayRecorded
-            ? 'bg-white text-slate-900 ring-1 ring-slate-200'
-            : 'bg-slate-900 text-white'
+            ? 'bg-white text-slate-700 ring-1 ring-slate-200 shadow-sm'
+            : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-orange-300 shadow-lg'
         }`}
       >
-        {todayRecorded ? '今日の記録を編集する' : '今日の記録をつける'}
+        {todayRecorded ? '✅ 今日の記録を編集する' : '⚾ 今日の記録をつける'}
       </Link>
 
       {/* 2. 今日のひとこと */}
-      <section className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        <p className="text-xs font-medium text-amber-700">今日のひとこと</p>
-        <p className="mt-1">{message}</p>
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 px-4 py-4 text-sm text-white shadow-md">
+        <div className="absolute right-3 top-2 text-4xl opacity-10 select-none">⚾</div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-orange-400">今日のひとこと</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-slate-200">{message}</p>
       </section>
 
       {/* 3. カレンダー */}
@@ -109,33 +110,36 @@ export default async function StudentHome() {
       />
 
       {/* 4. 連続記録日数 */}
-      <section className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-        <p className="text-xs text-slate-500">連続記録日数</p>
-        <p className="mt-1 text-2xl font-bold text-slate-900">
-          {streak}
-          <span className="ml-1 text-sm font-normal text-slate-500">日</span>
-        </p>
+      <section className="flex items-center gap-4 rounded-2xl bg-white px-5 py-4 shadow-sm">
+        <span className="text-4xl leading-none">🔥</span>
+        <div>
+          <p className="text-xs font-medium text-slate-500">連続記録日数</p>
+          <p className="mt-0.5 text-3xl font-black leading-none text-orange-500">
+            {streak}
+            <span className="ml-1 text-base font-semibold text-slate-400">日</span>
+          </p>
+        </div>
       </section>
 
       {/* 5. 最近のリアクション/コメント */}
       <section className="rounded-2xl bg-white p-4 shadow-sm">
-        <h2 className="mb-2 text-sm font-semibold text-slate-900">最近のリアクション・コメント</h2>
+        <h2 className="mb-3 text-sm font-bold text-slate-900">最近のリアクション・コメント</h2>
         {feedback.length === 0 ? (
-          <p className="text-sm text-slate-500">まだ届いていません。</p>
+          <p className="text-sm text-slate-400">まだ届いていません。</p>
         ) : (
           <ul className="space-y-2">
             {feedback.map((f) => (
               <li
                 key={`${f.kind}-${f.id}`}
-                className="flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm"
+                className="flex items-start gap-3 rounded-xl bg-slate-50 px-3 py-2.5 text-sm"
               >
-                <span className="text-base">{f.kind === 'reaction' ? f.text : '💬'}</span>
+                <span className="text-lg leading-none">{f.kind === 'reaction' ? f.text : '💬'}</span>
                 <div className="min-w-0 flex-1">
                   {f.kind === 'comment' && (
-                    <p className="truncate text-slate-800">{f.text}</p>
+                    <p className="truncate font-medium text-slate-800">{f.text}</p>
                   )}
-                  <p className="text-xs text-slate-500">
-                    {f.senderName} ・ {f.recordDate} の記録に
+                  <p className="text-xs text-slate-400">
+                    {f.senderName} ・ {f.recordDate} の記録
                   </p>
                 </div>
               </li>
