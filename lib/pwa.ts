@@ -1,0 +1,5 @@
+export const PWA_APP_NAME = '野球ノート'
+export const PWA_SHORT_NAME = '野球ノート'
+export const PWA_DESCRIPTION = '中高生野球選手のための日々の記録アプリ'
+export const PWA_BACKGROUND_COLOR = '#f8fafc'
+export const PWA_THEME_COLOR = '#f97316'

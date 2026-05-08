@@ -4,6 +4,8 @@ import { roleHomePath } from '@/lib/role'
 
 // 認証不要のパス（プレフィックス一致）
 const PUBLIC_PATHS = ['/login', '/auth']
+const PUBLIC_PREFIX_PATHS = ['/icon', '/apple-icon']
+const PUBLIC_EXACT_PATHS = ['/manifest.webmanifest']
 
 export const updateSession = async (request: NextRequest) => {
   let response = NextResponse.next({ request })
@@ -35,7 +37,23 @@ export const updateSession = async (request: NextRequest) => {
   const claims = data?.claims
 
   const { pathname } = request.nextUrl
-  const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p))
+  const isPublic =
+    PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
+    PUBLIC_PREFIX_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/')) ||
+    PUBLIC_EXACT_PATHS.includes(pathname)
+
+  if (claims && pathname === '/login') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', claims.sub)
+      .maybeSingle()
+
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = roleHomePath(profile?.role)
+    redirectUrl.search = ''
+    return NextResponse.redirect(redirectUrl)
+  }
 
   if (!claims && !isPublic) {
     const redirectUrl = request.nextUrl.clone()

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
+import { getPostLoginPath } from '@/lib/auth'
 
-export default function Home() {
-  redirect('/login')
+export default async function Home() {
+  redirect(await getPostLoginPath())
 }

@@ -10,7 +10,7 @@ export default function LoginPage() {
       <div className="space-y-1">
         <h1 className="text-xl font-semibold text-slate-900">ログイン</h1>
         <p className="text-sm text-slate-600">
-          メールアドレスとパスワードを入力してください。
+          メールアドレスでログインします。パスワードまたは認証コードを選択してください。
         </p>
       </div>
       <LoginForm />

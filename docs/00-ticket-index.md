@@ -34,9 +34,10 @@
 | 17 | [17-admin-contents.md](17-admin-contents.md) | 運営コンテンツ管理 | [ ] |
 | 18 | [18-testing.md](18-testing.md) | 最低限のテスト | [ ] |
 | 19 | [19-deploy.md](19-deploy.md) | Vercelデプロイ | [ ] |
+| 20 | [20-pwa.md](20-pwa.md) | PWA対応 | [~] |
 
 ---
 
 ## 進捗サマリー
 
-完了: 17 / 20
+完了: 17 / 21

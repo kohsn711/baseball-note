@@ -34,7 +34,6 @@ export default async function StudentMyPage() {
       </PageHeader>
 
       <div className="mx-auto w-full max-w-md space-y-6 px-4 py-4">
-
       <section className="rounded-xl bg-white p-4 shadow-sm">
         <p className="text-sm text-slate-500">表示名</p>
         <p className="text-base font-semibold text-slate-900">
