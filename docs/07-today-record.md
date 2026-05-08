@@ -5,7 +5,7 @@
 
 ## ToDo
 
-### 画面（`app/(student)/record/[date]/page.tsx`）
+### 画面（`app/(student)/records/[date]/page.tsx`）
 - [x] カテゴリタブUI（practice / training / meal / condition / injury / reflection）
 - [x] 未入力カテゴリがあっても「保存」できる設計
 - [x] 既存記録がある場合は編集モードで表示
@@ -61,7 +61,7 @@
 ### Server Action
 - [x] `daily_records` の upsert（当日レコードがなければ作成、あれば更新）
 - [x] 各カテゴリの子テーブルに upsert
-- [x] 保存後に記録詳細または学生ホームへ `redirect`
+- [x] 保存後に `revalidatePath()` で当日ページとホームを更新し、画面上に保存時刻を返す
 - [x] Server Action内で認証チェック・本人確認
 
 ## 備考
