@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { fetchContentDetail } from '@/lib/contents'
+import { requireRole } from '@/lib/current-user'
 import { ContentDetailView } from '@/components/content-detail'
 
 type Params = Promise<{ id: string }>
@@ -18,6 +19,7 @@ export default async function CoachContentDetailPage({
 }: {
   params: Params
 }) {
+  await requireRole('coach')
   const { id } = await params
   const content = await fetchContentDetail(id, 'coach')
   if (!content) notFound()

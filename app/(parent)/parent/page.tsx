@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
 import { fetchParentChildren } from '@/lib/parent'
+import { requireRole } from '@/lib/current-user'
 import { PageHeader } from '@/components/page-header'
 
 export const metadata = {
@@ -9,27 +8,16 @@ export const metadata = {
 }
 
 export default async function ParentHomePage() {
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('parent')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'parent') redirect('/login')
-
-  const children = await fetchParentChildren(userId)
+  const children = await fetchParentChildren(profile.id)
 
   return (
     <>
       <PageHeader>
         <div>
           <p className="text-xs text-slate-500">保護者</p>
-          <p className="text-base font-semibold text-slate-900">{profile.display_name} さん</p>
+          <p className="text-base font-semibold text-slate-900">{profile.displayName} さん</p>
         </div>
       </PageHeader>
 

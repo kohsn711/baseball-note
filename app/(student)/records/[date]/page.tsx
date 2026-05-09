@@ -1,7 +1,7 @@
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
 import { fetchDailyRecord } from '@/lib/daily-record'
 import { getJstParts } from '@/lib/date-jst'
+import { requireRole } from '@/lib/current-user'
 import { BackLink } from './back-link'
 import { RecordForm } from './record-form'
 
@@ -30,20 +30,9 @@ export default async function RecordPage({
   ) notFound()
   if (recordDate > today) notFound()
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('student')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'student') redirect('/login')
-
-  const data = await fetchDailyRecord(userId, recordDate)
+  const data = await fetchDailyRecord(profile.id, recordDate)
   const isEditing = data.dailyRecordId !== null
 
   return (

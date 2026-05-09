@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { requireRole } from '@/lib/current-user'
 import { approveParentLink, rejectParentLink } from './actions'
 
 export const metadata = {
@@ -17,19 +17,10 @@ type LinkRow = {
 }
 
 export default async function ParentLinksPage() {
+  const profile = await requireRole('parent')
   const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  const userEmail = (claimsData?.claims?.email as string | undefined) ?? null
-  if (!userId) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'parent') redirect('/login')
+  const userId = profile.id
+  const userEmail = profile.email || null
 
   const [activeRes, pendingByParentRes, pendingByEmailRes] = await Promise.all([
     supabase

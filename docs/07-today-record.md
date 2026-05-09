@@ -9,6 +9,7 @@
 - [x] カテゴリタブUI（practice / training / meal / condition / injury / reflection）
 - [x] 未入力カテゴリがあっても「保存」できる設計
 - [x] 既存記録がある場合は編集モードで表示
+- [x] 既存記録取得は `daily_records` から子テーブルをネストselectで一括取得
 
 ### カテゴリ別入力フォーム
 
@@ -68,3 +69,4 @@
 - 必須入力を増やしすぎない。すべてのフィールドはオプション
 - 数値・選択・チェック式を中心にする
 - `params` は `await params` で取得（Promiseのため）
+- 認証・ロール確認は `requireRole('student')` を使う

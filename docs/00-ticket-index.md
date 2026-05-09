@@ -35,9 +35,10 @@
 | 18 | [18-testing.md](18-testing.md) | 最低限のテスト | [ ] |
 | 19 | [19-deploy.md](19-deploy.md) | Vercelデプロイ | [ ] |
 | 20 | [20-pwa.md](20-pwa.md) | PWA対応 | [~] |
+| 21 | [21-performance-improvements.md](21-performance-improvements.md) | パフォーマンス改善 | [x] |
 
 ---
 
 ## 進捗サマリー
 
-完了: 18 / 21
+完了: 19 / 22

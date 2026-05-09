@@ -24,7 +24,7 @@
 
 ### Phase 1: インストール可能にする
 - [x] `app/manifest.ts` を追加し、`name` / `short_name` / `description` / `start_url` / `display` / `background_color` / `theme_color` / `icons` を定義
-- [x] Android / iOS 向けのアプリアイコンを追加（通常アイコン、Apple アイコン）
+- [x] アプリアイコンを追加（静的SVGアイコン）
 - [x] `app/layout.tsx` に PWA 向け metadata / viewport を追加し、テーマカラーとモバイル起動時の見え方を調整
 - [x] `/` 起動時の遷移を PWA 前提に見直し、ログイン済みならロール別ホーム、未ログインなら `/login` へ誘導
 - [x] `/login` アクセス時もログイン済みならロール別ホームへ戻すよう導線を統一
@@ -57,3 +57,5 @@
 - 既存の `notifications` はアプリ内通知であり、Web Push を入れても置き換えず併存させる
 - インストール導線 UI は認証後画面で共通表示し、`/login` `/setup` では非表示
 - Phase 2 / Phase 3 は本チケットの初回対応のリリース範囲には含めず、要件とリスクを整理したうえで後続対応する
+- 開発時に `ImageResponse` 生成アイコンへの `/icon/512?...` リクエストが繰り返される問題があったため、`app/icon.tsx` / `app/apple-icon.tsx` は廃止し、`app/icon.svg` と `public/icons/baseball-note-icon.svg` の静的配信に変更した
+- `proxy.ts` の matcher では `icon` / `apple-icon` / `manifest.webmanifest` / 画像拡張子を除外し、PWAメタデータ取得で認証Proxyを通らないようにする

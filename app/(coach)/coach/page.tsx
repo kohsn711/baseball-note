@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
 import { fetchCoachTeamsWithStudents } from '@/lib/coach'
+import { requireRole } from '@/lib/current-user'
 import { PageHeader } from '@/components/page-header'
 
 export const metadata = {
@@ -9,28 +8,16 @@ export const metadata = {
 }
 
 export default async function CoachDashboardPage() {
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('coach')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, role')
-    .eq('id', userId)
-    .maybeSingle()
-
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'coach') redirect('/login')
-
-  const teams = await fetchCoachTeamsWithStudents(userId)
+  const teams = await fetchCoachTeamsWithStudents(profile.id)
 
   return (
     <>
       <PageHeader>
         <div>
           <p className="text-xs text-slate-500">監督</p>
-          <p className="text-base font-semibold text-slate-900">{profile.display_name} さん</p>
+          <p className="text-base font-semibold text-slate-900">{profile.displayName} さん</p>
         </div>
       </PageHeader>
 

@@ -53,11 +53,9 @@ export const fetchCoachTeamsWithStudents = async (
       .select('student_id, record_date')
       .in('student_id', studentIds)
       .gte('record_date', since),
-    supabase
-      .from('daily_records')
-      .select('student_id, record_date')
-      .in('student_id', studentIds)
-      .order('record_date', { ascending: false }),
+    supabase.rpc('get_students_last_record_dates', {
+      _student_ids: studentIds,
+    }),
   ])
 
   const recentByStudent = new Map<string, Set<string>>()
@@ -69,10 +67,12 @@ export const fetchCoachTeamsWithStudents = async (
   }
 
   const lastByStudent = new Map<string, string>()
-  for (const r of lastRes.data ?? []) {
-    const sid = r.student_id as string
-    if (!lastByStudent.has(sid)) {
-      lastByStudent.set(sid, r.record_date as string)
+  for (const r of (lastRes.data ?? []) as Array<{
+    student_id: string
+    last_record_date: string | null
+  }>) {
+    if (r.last_record_date) {
+      lastByStudent.set(r.student_id, r.last_record_date)
     }
   }
 

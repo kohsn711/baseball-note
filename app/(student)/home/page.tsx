@@ -1,16 +1,8 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
 import { getJstParts, calculateStreak } from '@/lib/date-jst'
 import { getDailyMessage } from '@/lib/messages'
-import {
-  fetchMonthlyRecordedDates,
-  fetchRecentFeedback,
-  fetchRecentRecordedDates,
-  isTodayRecorded,
-} from '@/lib/student-home'
-import { fetchTeamsForUser } from '@/lib/team'
-import { countUnreadNotifications } from '@/lib/notifications'
+import { fetchStudentHomeData } from '@/lib/student-home'
+import { requireRole } from '@/lib/current-user'
 import { PageHeader } from '@/components/page-header'
 import { Calendar } from './calendar'
 
@@ -19,31 +11,13 @@ export const metadata = {
 }
 
 export default async function StudentHome() {
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name, role')
-    .eq('id', userId)
-    .maybeSingle()
-
-  if (!profile?.role) redirect('/setup')
+  const profile = await requireRole('student')
 
   const today = getJstParts()
   const todayIso = today.iso
 
-  const [todayRecorded, monthlyDates, recentDates, feedback, teams, unreadCount] =
-    await Promise.all([
-      isTodayRecorded(userId, todayIso),
-      fetchMonthlyRecordedDates(userId, today.year, today.month),
-      fetchRecentRecordedDates(userId),
-      fetchRecentFeedback(userId),
-      fetchTeamsForUser(userId),
-      countUnreadNotifications(userId),
-    ])
+  const { todayRecorded, monthlyDates, recentDates, feedback, teams, unreadCount } =
+    await fetchStudentHomeData(profile.id, today.year, today.month, todayIso)
 
   const streak = calculateStreak(recentDates)
   const message = getDailyMessage(todayIso)
@@ -53,7 +27,7 @@ export default async function StudentHome() {
       <PageHeader>
         <div>
           <p className="text-xs text-slate-500">こんにちは</p>
-          <p className="text-base font-semibold text-slate-900">{profile.display_name} さん</p>
+          <p className="text-base font-semibold text-slate-900">{profile.displayName} さん</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
           {teams.length > 0 && (

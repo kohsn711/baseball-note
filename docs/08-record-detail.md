@@ -13,7 +13,7 @@
 - [x] リアクション・コメントの表示
 
 ### データフェッチ
-- [x] `daily_records` とすべての子テーブルを一括取得
+- [x] `daily_records` とすべての子テーブルをネストselectで一括取得
 - [x] リアクション・コメントを取得（`lib/daily-record.ts` の `fetchRecordSocial`）
 - [x] `Promise.all` で並列フェッチ
 - [x] `params` は `await params` で取得
@@ -29,3 +29,4 @@
 
 ## 備考
 - ケガ・健康情報は医療判断として扱わない旨の注意書きをケガセクションに表示済み
+- 学生・監督・保護者の詳細ページは `requireRole()` でロール確認し、共通の `fetchDailyRecord()` を利用する

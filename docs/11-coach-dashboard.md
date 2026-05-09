@@ -25,6 +25,8 @@
 - [x] 自分のチームに所属する学生のみ表示（RLS + アプリ側チェック）
 - [x] 他チームの学生データにアクセスした場合は `notFound()`
 - [x] `params` は `await params` で取得
+- [x] 最終記録日は `get_students_last_record_dates()` RPCでDB側集約する
+- [x] 認証・ロール確認は `requireRole('coach')` を使う
 
 ### UI
 - [x] `loading.tsx` でスケルトン表示

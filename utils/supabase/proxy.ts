@@ -62,10 +62,16 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // 認証済みかつ非公開パスの場合、初期設定の有無で振り分ける
+  // プロフィール取得はDB往復になるため、必要な経路だけproxyで判定する。
+  // 通常ページのロール確認は各Server Component側で行う。
   if (claims && !isPublic) {
     const userId = claims.sub
     const isOnSetup = pathname.startsWith('/setup')
+    const needsProfileCheck = isOnSetup || pathname.startsWith('/admin')
+
+    if (!needsProfileCheck) {
+      return response
+    }
 
     const { data: profile } = await supabase
       .from('profiles')

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="78" y1="58" x2="434" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f172a"/>
+      <stop offset="0.56" stop-color="#173250"/>
+      <stop offset="1" stop-color="#21456d"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="282" y1="86" x2="398" y2="226" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff7ed"/>
+      <stop offset="1" stop-color="#ffedd5"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fb923c"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="23" y="23" width="466" height="466" rx="101" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="5"/>
+  <circle cx="171" cy="163" r="62" fill="#fff7ed"/>
+  <path d="M149 111c-18 32-20 73 0 105" fill="none" stroke="#f97316" stroke-width="8" stroke-linecap="round"/>
+  <path d="M193 111c18 32 20 73 0 105" fill="none" stroke="#f97316" stroke-width="8" stroke-linecap="round"/>
+  <g stroke="#f97316" stroke-width="7" stroke-linecap="round">
+    <path d="M142 126l14 10"/>
+    <path d="M136 149l16 7"/>
+    <path d="M136 174l16-7"/>
+    <path d="M142 197l14-10"/>
+    <path d="M200 126l-14 10"/>
+    <path d="M206 149l-16 7"/>
+    <path d="M206 174l-16-7"/>
+    <path d="M200 197l-14-10"/>
+  </g>
+  <rect x="292" y="93" width="108" height="132" rx="12" fill="url(#paper)"/>
+  <rect x="270" y="93" width="18" height="132" rx="8" fill="url(#orange)"/>
+  <g stroke-linecap="round" stroke-width="7">
+    <path d="M318 132h48" stroke="#1e3a5f"/>
+    <path d="M318 164h48" stroke="#64748b"/>
+    <path d="M318 196h36" stroke="#64748b"/>
+  </g>
+  <g transform="translate(342 181) rotate(38)">
+    <rect x="0" y="0" width="15" height="83" rx="8" fill="url(#orange)" stroke="rgba(15,23,42,0.18)" stroke-width="3"/>
+    <path d="M0 83h15l-7.5 18z" fill="#1e293b"/>
+  </g>
+  <rect x="101" y="282" width="154" height="154" rx="36" fill="#f8fafc"/>
+  <path d="M130 392h96" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>
+  <rect x="143" y="347" width="17" height="45" rx="8" fill="#1e3a5f"/>
+  <rect x="174" y="318" width="17" height="74" rx="8" fill="#1e3a5f"/>
+  <rect x="205" y="290" width="17" height="102" rx="8" fill="url(#orange)"/>
+  <circle cx="218" cy="320" r="15" fill="#ffedd5" stroke="#fb923c" stroke-width="6"/>
+</svg>

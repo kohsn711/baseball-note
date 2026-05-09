@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { fetchNotifications } from '@/lib/notifications'
+import { requireRole } from '@/lib/current-user'
 import { PageHeader } from '@/components/page-header'
 
 export const metadata = {
@@ -20,26 +20,16 @@ const formatJst = (iso: string): string => {
 }
 
 export default async function NotificationsPage() {
+  const profile = await requireRole('student')
   const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (profile?.role !== 'student') redirect('/login')
-
-  const items = await fetchNotifications(userId)
+  const items = await fetchNotifications(profile.id)
 
   const hasUnread = items.some((n) => !n.isRead)
   if (hasUnread) {
     await supabase
       .from('notifications')
       .update({ is_read: true })
-      .eq('user_id', userId)
+      .eq('user_id', profile.id)
       .eq('is_read', false)
     // 学生 layout のヘッダーベル未読数を再計算させる
     revalidatePath('/', 'layout')

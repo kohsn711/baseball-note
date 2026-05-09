@@ -1,22 +1,10 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { requireRole } from '@/lib/current-user'
 import { PageHeader } from '@/components/page-header'
 import { SignOutButton } from '@/components/sign-out-button'
 
 export default async function ParentMyPage() {
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
-
-  const email = (claimsData?.claims?.email as string | undefined) ?? ''
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name')
-    .eq('id', userId)
-    .maybeSingle()
+  const profile = await requireRole('parent')
 
   return (
     <>
@@ -28,10 +16,10 @@ export default async function ParentMyPage() {
       <section className="rounded-xl bg-white p-4 shadow-sm">
         <p className="text-sm text-slate-500">表示名</p>
         <p className="text-base font-semibold text-slate-900">
-          {profile?.display_name ?? '—'}
+          {profile.displayName || '—'}
         </p>
         <p className="mt-3 text-sm text-slate-500">メールアドレス</p>
-        <p className="break-all text-sm text-slate-700">{email}</p>
+        <p className="break-all text-sm text-slate-700">{profile.email}</p>
       </section>
 
       <nav className="space-y-2">

@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
 import { fetchGoalById } from '@/lib/goals'
+import { requireRole } from '@/lib/current-user'
 import { GoalForm } from '../../goal-form'
 import { updateGoal } from '../../actions'
 
@@ -19,20 +19,9 @@ export default async function EditGoalPage({
   const { id } = await params
   if (!UUID.test(id)) notFound()
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('student')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'student') redirect('/login')
-
-  const goal = await fetchGoalById(id, userId)
+  const goal = await fetchGoalById(id, profile.id)
   if (!goal) notFound()
 
   const action = updateGoal.bind(null, goal.id)

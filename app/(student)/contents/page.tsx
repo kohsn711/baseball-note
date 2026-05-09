@@ -2,6 +2,7 @@ import {
   fetchPublishedCategories,
   fetchPublishedContents,
 } from '@/lib/contents'
+import { requireRole } from '@/lib/current-user'
 import { ContentsList } from '@/components/contents-list'
 import { PageHeader } from '@/components/page-header'
 
@@ -16,6 +17,7 @@ export default async function StudentContentsPage({
 }: {
   searchParams: SearchParams
 }) {
+  await requireRole('student')
   const { category } = await searchParams
   const selected = category ?? null
 

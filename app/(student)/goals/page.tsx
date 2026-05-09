@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
 import {
   fetchGoalsByStatus,
   GOAL_CATEGORY_LABEL,
@@ -8,6 +6,7 @@ import {
   GOAL_STATUS_LABEL,
   type GoalStatus,
 } from '@/lib/goals'
+import { requireRole } from '@/lib/current-user'
 import { PageHeader } from '@/components/page-header'
 import { StatusButtons } from './status-buttons'
 
@@ -25,20 +24,9 @@ export default async function GoalsPage({
     ? (statusParam as GoalStatus)
     : 'active'
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('student')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'student') redirect('/login')
-
-  const goals = await fetchGoalsByStatus(userId, status)
+  const goals = await fetchGoalsByStatus(profile.id, status)
 
   return (
     <>

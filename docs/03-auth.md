@@ -22,6 +22,7 @@ Supabase Authを使った共通ログイン。メール+パスワード認証を
 ### ロール判定
 - [x] `profiles.role` の値（student / coach / parent / admin）でリダイレクト先を分岐
 - [x] 未設定（初回ログイン）の場合は初期設定画面（`/setup`）へ遷移
+- [x] ページ側の認証・プロフィール取得を `lib/current-user.ts` に共通化
 
 ### ログアウト
 - [x] ログアウトのServer Actionを実装（`supabase.auth.signOut()`）
@@ -38,8 +39,13 @@ Supabase Authを使った共通ログイン。メール+パスワード認証を
 - `proxy.ts` — Next.js 16ではMiddlewareがProxyに改名された
 - `utils/supabase/proxy.ts` — `updateSession` ヘルパー
 - `lib/auth.ts` — `getPostLoginPath()` ロール別リダイレクト先決定
+- `lib/current-user.ts` — Server Component向けの現在ユーザー・ロール取得ヘルパー
 - `app/(auth)/layout.tsx` — 共通レイアウト
 - `app/(auth)/login/page.tsx` / `login-form.tsx` / `actions.ts`
+
+### パフォーマンスメモ
+- Proxyは通常の保護ページでは `profiles` を取得せず、`/setup` と `/admin` のようにProxy段階でロール判定が必要な経路だけDBを読む
+- Server Componentでは `requireRole()` を使い、同一リクエスト内の現在ユーザー取得を `cache()` で重複抑制する
 
 ### Server Actions
 - `signInWithPassword` — メール＋パスワード認証、成功時に `getPostLoginPath()` でロール別ホームへ

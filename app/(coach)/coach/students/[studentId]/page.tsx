@@ -1,12 +1,12 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
 import {
   fetchCoachStudent,
   fetchStudentRecentRecords,
   fetchStudentRecordedDates,
 } from '@/lib/coach'
 import { getJstParts } from '@/lib/date-jst'
+import { requireRole } from '@/lib/current-user'
 import { CoachCalendar } from '@/components/coach-calendar'
 
 export const metadata = {
@@ -25,20 +25,9 @@ export default async function CoachStudentPage({
   const { studentId } = await params
   if (!UUID.test(studentId)) notFound()
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('coach')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'coach') redirect('/login')
-
-  const student = await fetchCoachStudent(userId, studentId)
+  const student = await fetchCoachStudent(profile.id, studentId)
   if (!student) notFound()
 
   const sp = await searchParams

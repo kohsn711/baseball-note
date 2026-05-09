@@ -6,8 +6,8 @@ export const proxy = async (request: NextRequest) => {
 }
 
 export const config = {
-  // 静的アセットは除外。それ以外のすべてのリクエストでセッションを更新する
+  // 静的アセットとPWAメタデータは除外。それ以外のリクエストでセッションを更新する
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

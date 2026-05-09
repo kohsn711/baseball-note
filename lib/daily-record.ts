@@ -115,111 +115,152 @@ export const fetchDailyRecord = async (
 ): Promise<DailyRecordData> => {
   const supabase = await createClient()
 
-  const { data: parent } = await supabase
+  const { data: record } = await supabase
     .from('daily_records')
-    .select('id')
+    .select(`
+      id,
+      practice_entries ( type, count, duration_minutes, memo ),
+      training_entries ( type, count, duration_minutes, memo ),
+      meal_records ( breakfast, lunch, dinner, snack, water_level, memo ),
+      condition_records ( sleep_hours, wake_time, sleep_time, weight_kg, condition ),
+      injury_records ( has_pain, body_part, pain_level, affects_level, memo ),
+      reflection_records ( achievements, challenges, tomorrow_plan, mood )
+    `)
     .eq('student_id', studentId)
     .eq('record_date', recordDate)
     .maybeSingle()
 
-  if (!parent?.id) return emptyData(recordDate)
+  if (!record?.id) return emptyData(recordDate)
 
-  const dailyRecordId = parent.id as string
-
-  const [practiceRes, trainingRes, mealRes, conditionRes, injuryRes, reflectionRes] =
-    await Promise.all([
-      supabase
-        .from('practice_entries')
-        .select('type, count, duration_minutes, memo')
-        .eq('daily_record_id', dailyRecordId),
-      supabase
-        .from('training_entries')
-        .select('type, count, duration_minutes, memo')
-        .eq('daily_record_id', dailyRecordId),
-      supabase
-        .from('meal_records')
-        .select('breakfast, lunch, dinner, snack, water_level, memo')
-        .eq('daily_record_id', dailyRecordId)
-        .maybeSingle(),
-      supabase
-        .from('condition_records')
-        .select('sleep_hours, wake_time, sleep_time, weight_kg, condition')
-        .eq('daily_record_id', dailyRecordId)
-        .maybeSingle(),
-      supabase
-        .from('injury_records')
-        .select('has_pain, body_part, pain_level, affects_level, memo')
-        .eq('daily_record_id', dailyRecordId)
-        .maybeSingle(),
-      supabase
-        .from('reflection_records')
-        .select('achievements, challenges, tomorrow_plan, mood')
-        .eq('daily_record_id', dailyRecordId)
-        .maybeSingle(),
-    ])
+  const dailyRecordId = record.id as string
 
   const data = emptyData(recordDate)
   data.dailyRecordId = dailyRecordId
 
-  for (const row of (practiceRes.data ?? []) as Array<{
-    type: PracticeType
-    count: number | null
-    duration_minutes: number | null
-    memo: string | null
-  }>) {
-    data.practice[row.type] = {
-      count: row.count,
-      durationMinutes: row.duration_minutes,
-      memo: row.memo,
+  type DailyRecordRow = {
+    practice_entries?: Array<{
+      type: PracticeType
+      count: number | null
+      duration_minutes: number | null
+      memo: string | null
+    }> | null
+    training_entries?: Array<{
+      type: TrainingType
+      count: number | null
+      duration_minutes: number | null
+      memo: string | null
+    }> | null
+    meal_records?: {
+      breakfast: MealStatus | null
+      lunch: MealStatus | null
+      dinner: MealStatus | null
+      snack: MealStatus | null
+      water_level: WaterLevel | null
+      memo: string | null
+    } | Array<{
+      breakfast: MealStatus | null
+      lunch: MealStatus | null
+      dinner: MealStatus | null
+      snack: MealStatus | null
+      water_level: WaterLevel | null
+      memo: string | null
+    }> | null
+    condition_records?: {
+      sleep_hours: number | null
+      wake_time: string | null
+      sleep_time: string | null
+      weight_kg: number | null
+      condition: ConditionLevel | null
+    } | Array<{
+      sleep_hours: number | null
+      wake_time: string | null
+      sleep_time: string | null
+      weight_kg: number | null
+      condition: ConditionLevel | null
+    }> | null
+    injury_records?: {
+      has_pain: boolean | null
+      body_part: BodyPart | null
+      pain_level: number | null
+      affects_level: AffectsLevel | null
+      memo: string | null
+    } | Array<{
+      has_pain: boolean | null
+      body_part: BodyPart | null
+      pain_level: number | null
+      affects_level: AffectsLevel | null
+      memo: string | null
+    }> | null
+    reflection_records?: {
+      achievements: string | null
+      challenges: string | null
+      tomorrow_plan: string | null
+      mood: number | null
+    } | Array<{
+      achievements: string | null
+      challenges: string | null
+      tomorrow_plan: string | null
+      mood: number | null
+    }> | null
+  }
+
+  const row = record as DailyRecordRow
+  const pickOne = <T,>(value: T | T[] | null | undefined): T | null =>
+    Array.isArray(value) ? (value[0] ?? null) : (value ?? null)
+
+  for (const entry of row.practice_entries ?? []) {
+    data.practice[entry.type] = {
+      count: entry.count,
+      durationMinutes: entry.duration_minutes,
+      memo: entry.memo,
     }
   }
-  for (const row of (trainingRes.data ?? []) as Array<{
-    type: TrainingType
-    count: number | null
-    duration_minutes: number | null
-    memo: string | null
-  }>) {
-    data.training[row.type] = {
-      count: row.count,
-      durationMinutes: row.duration_minutes,
-      memo: row.memo,
+  for (const entry of row.training_entries ?? []) {
+    data.training[entry.type] = {
+      count: entry.count,
+      durationMinutes: entry.duration_minutes,
+      memo: entry.memo,
     }
   }
 
-  if (mealRes.data) {
+  const meal = pickOne(row.meal_records)
+  if (meal) {
     data.meal = {
-      breakfast: (mealRes.data.breakfast as MealStatus | null) ?? null,
-      lunch: (mealRes.data.lunch as MealStatus | null) ?? null,
-      dinner: (mealRes.data.dinner as MealStatus | null) ?? null,
-      snack: (mealRes.data.snack as MealStatus | null) ?? null,
-      waterLevel: (mealRes.data.water_level as WaterLevel | null) ?? null,
-      memo: (mealRes.data.memo as string | null) ?? null,
+      breakfast: meal.breakfast ?? null,
+      lunch: meal.lunch ?? null,
+      dinner: meal.dinner ?? null,
+      snack: meal.snack ?? null,
+      waterLevel: meal.water_level ?? null,
+      memo: meal.memo ?? null,
     }
   }
-  if (conditionRes.data) {
+  const condition = pickOne(row.condition_records)
+  if (condition) {
     data.condition = {
-      sleepHours: (conditionRes.data.sleep_hours as number | null) ?? null,
-      wakeTime: (conditionRes.data.wake_time as string | null) ?? null,
-      sleepTime: (conditionRes.data.sleep_time as string | null) ?? null,
-      weightKg: (conditionRes.data.weight_kg as number | null) ?? null,
-      condition: (conditionRes.data.condition as ConditionLevel | null) ?? null,
+      sleepHours: condition.sleep_hours ?? null,
+      wakeTime: condition.wake_time ?? null,
+      sleepTime: condition.sleep_time ?? null,
+      weightKg: condition.weight_kg ?? null,
+      condition: condition.condition ?? null,
     }
   }
-  if (injuryRes.data) {
+  const injury = pickOne(row.injury_records)
+  if (injury) {
     data.injury = {
-      hasPain: Boolean(injuryRes.data.has_pain),
-      bodyPart: (injuryRes.data.body_part as BodyPart | null) ?? null,
-      painLevel: (injuryRes.data.pain_level as number | null) ?? null,
-      affectsLevel: (injuryRes.data.affects_level as AffectsLevel | null) ?? null,
-      memo: (injuryRes.data.memo as string | null) ?? null,
+      hasPain: Boolean(injury.has_pain),
+      bodyPart: injury.body_part ?? null,
+      painLevel: injury.pain_level ?? null,
+      affectsLevel: injury.affects_level ?? null,
+      memo: injury.memo ?? null,
     }
   }
-  if (reflectionRes.data) {
+  const reflection = pickOne(row.reflection_records)
+  if (reflection) {
     data.reflection = {
-      achievements: (reflectionRes.data.achievements as string | null) ?? null,
-      challenges: (reflectionRes.data.challenges as string | null) ?? null,
-      tomorrowPlan: (reflectionRes.data.tomorrow_plan as string | null) ?? null,
-      mood: (reflectionRes.data.mood as number | null) ?? null,
+      achievements: reflection.achievements ?? null,
+      challenges: reflection.challenges ?? null,
+      tomorrowPlan: reflection.tomorrow_plan ?? null,
+      mood: reflection.mood ?? null,
     }
   }
 

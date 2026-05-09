@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
 import { fetchCoachStudent } from '@/lib/coach'
 import { fetchGoalsByStatus } from '@/lib/goals'
+import { requireRole } from '@/lib/current-user'
 import { GOAL_CATEGORY_LABEL, GOAL_STATUS_LABEL } from '@/lib/goals-constants'
 
 export const metadata = {
@@ -19,20 +19,9 @@ export default async function CoachStudentGoalsPage({
   const { studentId } = await params
   if (!UUID.test(studentId)) notFound()
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('coach')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'coach') redirect('/login')
-
-  const student = await fetchCoachStudent(userId, studentId)
+  const student = await fetchCoachStudent(profile.id, studentId)
   if (!student) notFound()
 
   const [activeGoals, achievedGoals] = await Promise.all([

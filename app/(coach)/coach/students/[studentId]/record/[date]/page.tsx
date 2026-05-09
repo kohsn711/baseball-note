@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
 import { fetchDailyRecord, fetchRecordSocial } from '@/lib/daily-record'
 import { fetchPresetComments } from '@/lib/social'
 import { fetchCoachStudent } from '@/lib/coach'
 import { getJstParts } from '@/lib/date-jst'
+import { requireRole } from '@/lib/current-user'
 import { RecordDetailView, formatDateHeader } from '@/components/record-detail-view'
 import { RecordSocial } from '@/components/record-social'
 
@@ -35,20 +35,9 @@ export default async function CoachStudentRecordPage({
   ) notFound()
   if (recordDate > today) notFound()
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('coach')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'coach') redirect('/login')
-
-  const student = await fetchCoachStudent(userId, studentId)
+  const student = await fetchCoachStudent(profile.id, studentId)
   if (!student) notFound()
 
   const data = await fetchDailyRecord(studentId, recordDate)
@@ -80,7 +69,7 @@ export default async function CoachStudentRecordPage({
 
       <RecordSocial
         dailyRecordId={data.dailyRecordId}
-        viewerId={userId}
+        viewerId={profile.id}
         canInteract
         reactions={reactions}
         comments={comments}

@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
 import { fetchParentChild } from '@/lib/parent'
 import { fetchStudentRecentRecords, fetchStudentRecordedDates } from '@/lib/coach'
 import { getJstParts } from '@/lib/date-jst'
+import { requireRole } from '@/lib/current-user'
 import { CoachCalendar } from '@/components/coach-calendar'
 
 export const metadata = {
@@ -22,20 +22,9 @@ export default async function ParentChildPage({
   const { studentId } = await params
   if (!UUID.test(studentId)) notFound()
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('parent')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'parent') redirect('/login')
-
-  const child = await fetchParentChild(userId, studentId)
+  const child = await fetchParentChild(profile.id, studentId)
   if (!child) notFound()
 
   const sp = await searchParams

@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { notFound } from 'next/navigation'
 import { fetchDailyRecord, fetchRecordSocial } from '@/lib/daily-record'
 import { fetchPresetComments } from '@/lib/social'
 import { getJstParts } from '@/lib/date-jst'
+import { requireRole } from '@/lib/current-user'
 import { RecordDetailView, formatDateHeader } from '@/components/record-detail-view'
 import { RecordSocial } from '@/components/record-social'
 
@@ -32,20 +32,9 @@ export default async function RecordDetailPage({
   ) notFound()
   if (recordDate > today) notFound()
 
-  const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
+  const profile = await requireRole('student')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'student') redirect('/login')
-
-  const data = await fetchDailyRecord(userId, recordDate)
+  const data = await fetchDailyRecord(profile.id, recordDate)
   if (!data.dailyRecordId) notFound()
 
   const [{ reactions, comments }, presetComments] = await Promise.all([
@@ -75,7 +64,7 @@ export default async function RecordDetailPage({
 
       <RecordSocial
         dailyRecordId={data.dailyRecordId}
-        viewerId={userId}
+        viewerId={profile.id}
         canInteract={false}
         reactions={reactions}
         comments={comments}

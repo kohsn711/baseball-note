@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { requireRole } from '@/lib/current-user'
 import { ParentInviteForm } from './parent-invite-form'
 import { cancelParentInvite, resendParentInviteCode } from './actions'
 
@@ -17,23 +17,13 @@ type LinkRow = {
 }
 
 export default async function ParentInvitePage() {
+  const profile = await requireRole('student')
   const supabase = await createClient()
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (!userId) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .maybeSingle()
-  if (!profile?.role) redirect('/setup')
-  if (profile.role !== 'student') redirect('/login')
 
   const { data: links } = await supabase
     .from('parent_child_links')
     .select('id, parent_id, invited_email, status, created_at')
-    .eq('student_id', userId)
+    .eq('student_id', profile.id)
     .order('created_at', { ascending: false })
     .returns<LinkRow[]>()
 

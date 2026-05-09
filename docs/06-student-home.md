@@ -18,6 +18,7 @@
 - [x] 最新のリアクション・コメントを取得
 - [x] 未読通知件数を取得（PageHeader ベル表示用）
 - [x] 独立したフェッチは `Promise.all` で並列実行
+- [x] `fetchStudentHomeData()` でホーム用データ取得を集約し、Supabaseクライアント生成とDB往復を削減
 
 ### UI
 - [x] スマホファーストのレイアウト
@@ -37,3 +38,4 @@
 - コンテンツ導線・保護者登録セクション・旧通知ボタンは重複のため削除済み
 - チーム未参加時のみ `/team/join` への案内テキストをヘッダー下に表示
 - 通知ベルは `PageHeader` 右端にインライン配置。`countUnreadNotifications` で未読件数取得
+- 現行の `/home` は `requireRole('student')` で認証・ロール確認し、ホーム固有データは `lib/student-home.ts` に集約する
