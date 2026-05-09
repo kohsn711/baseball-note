@@ -34,33 +34,18 @@ export const joinTeam = async (
     return { error: 'チームに参加する権限がありません。' }
   }
 
-  // teams の select RLS は同チームメンバーのみ許可しているため、
-  // 未加入の学生は通常クエリで teams を取得できない。
-  // SECURITY DEFINER の find_team_by_code RPC で id を引く。
-  const { data: teamRows, error: rpcError } = await supabase.rpc('find_team_by_code', {
+  const { error: rpcError } = await supabase.rpc('join_team_by_code', {
     _team_code: code,
   })
 
   if (rpcError) {
-    return { error: 'チームの検索に失敗しました。時間をおいて再度お試しください。' }
-  }
-
-  const team = Array.isArray(teamRows) ? teamRows[0] : null
-  if (!team) {
-    return { error: 'そのチームコードのチームは見つかりませんでした。' }
-  }
-
-  const { error: insertError } = await supabase.from('team_members').insert({
-    team_id: team.id,
-    user_id: userId,
-    role_in_team: 'student',
-  })
-
-  if (insertError) {
-    if (insertError.code === '23505') {
+    if (rpcError.code === '23505') {
       return { error: 'すでにこのチームに所属しています。' }
     }
-    return { error: 'チームへの参加に失敗しました。時間をおいて再度お試しください。' }
+    if (rpcError.message.includes('team_not_found')) {
+      return { error: 'そのチームコードのチームは見つかりませんでした。' }
+    }
+    return { error: 'チームの検索に失敗しました。時間をおいて再度お試しください。' }
   }
 
   revalidatePath('/home')

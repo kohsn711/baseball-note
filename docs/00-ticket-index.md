@@ -36,9 +36,10 @@
 | 19 | [19-deploy.md](19-deploy.md) | Vercelデプロイ | [ ] |
 | 20 | [20-pwa.md](20-pwa.md) | PWA対応 | [~] |
 | 21 | [21-performance-improvements.md](21-performance-improvements.md) | パフォーマンス改善 | [x] |
+| 22 | [22-security-hardening.md](22-security-hardening.md) | セキュリティリスク対応 | [~] |
 
 ---
 
 ## 進捗サマリー
 
-完了: 19 / 22
+完了: 19 / 23

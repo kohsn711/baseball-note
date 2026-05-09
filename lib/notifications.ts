@@ -70,22 +70,3 @@ export const countUnreadNotifications = async (userId: string): Promise<number> 
     .eq('is_read', false)
   return count ?? 0
 }
-
-type NotifyInput = {
-  userId: string
-  type: 'reaction' | 'comment'
-  title: string
-  body?: string | null
-  relatedRecordId: string
-}
-
-export const createNotification = async (input: NotifyInput): Promise<void> => {
-  const supabase = await createClient()
-  await supabase.from('notifications').insert({
-    user_id: input.userId,
-    type: input.type,
-    title: input.title,
-    body: input.body ?? null,
-    related_record_id: input.relatedRecordId,
-  })
-}

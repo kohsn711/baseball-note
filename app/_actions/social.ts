@@ -2,7 +2,6 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { isReactionEmoji } from '@/lib/social-constants'
-import { createNotification } from '@/lib/notifications'
 
 const UUID = /^[0-9a-fA-F-]{36}$/
 
@@ -51,16 +50,6 @@ const canSendTo = async (
   return { ok: parentOk === true, studentId: dr.student_id }
 }
 
-const fetchSenderName = async (userId: string): Promise<string> => {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('profiles')
-    .select('display_name')
-    .eq('id', userId)
-    .maybeSingle()
-  return (data?.display_name as string) ?? ''
-}
-
 export const toggleReaction = async (
   dailyRecordId: string,
   emoji: string
@@ -101,17 +90,6 @@ export const toggleReaction = async (
   })
   if (error) return { ok: false, error: 'リアクションの送信に失敗しました。' }
 
-  if (access.studentId !== auth.userId) {
-    const senderName = await fetchSenderName(auth.userId)
-    await createNotification({
-      userId: access.studentId,
-      type: 'reaction',
-      title: `${senderName || '応援者'}さんからリアクションが届きました`,
-      body: emoji,
-      relatedRecordId: dailyRecordId,
-    })
-  }
-
   return { ok: true }
 }
 
@@ -146,17 +124,6 @@ export const sendComment = async (
     text: trimmed,
   })
   if (error) return { ok: false, error: 'コメントの送信に失敗しました。' }
-
-  if (access.studentId !== auth.userId) {
-    const senderName = await fetchSenderName(auth.userId)
-    await createNotification({
-      userId: access.studentId,
-      type: 'comment',
-      title: `${senderName || '応援者'}さんからコメントが届きました`,
-      body: trimmed,
-      relatedRecordId: dailyRecordId,
-    })
-  }
 
   return { ok: true }
 }

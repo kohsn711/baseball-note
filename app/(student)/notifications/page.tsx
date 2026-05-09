@@ -1,9 +1,8 @@
-import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
 import { fetchNotifications } from '@/lib/notifications'
 import { requireRole } from '@/lib/current-user'
 import { PageHeader } from '@/components/page-header'
+import { MarkReadOnView } from './mark-read-on-view'
 
 export const metadata = {
   title: '通知 | 野球ノート',
@@ -21,22 +20,13 @@ const formatJst = (iso: string): string => {
 
 export default async function NotificationsPage() {
   const profile = await requireRole('student')
-  const supabase = await createClient()
   const items = await fetchNotifications(profile.id)
 
   const hasUnread = items.some((n) => !n.isRead)
-  if (hasUnread) {
-    await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', profile.id)
-      .eq('is_read', false)
-    // 学生 layout のヘッダーベル未読数を再計算させる
-    revalidatePath('/', 'layout')
-  }
 
   return (
     <>
+      <MarkReadOnView enabled={hasUnread} />
       <PageHeader>
         <h1 className="text-base font-semibold text-slate-900">通知</h1>
       </PageHeader>
